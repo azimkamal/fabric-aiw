@@ -25,51 +25,51 @@
 find_replace:
 
   # ── Workspace ID ──────────────────────────────────────────────
-  - find_value: "YOUR-DEV-WORKSPACE-GUID"
+  - find_value: "2528eec1-58df-4e72-af45-d2966c5112ba"
     replace_value:
       test: "$workspace.$id"
       prod: "$workspace.$id"
 
   # ── Lakehouse 1: source ───────────────────────────────────────
-  - find_value: "YOUR-DEV-SOURCE-LAKEHOUSE-GUID"
+  - find_value: "ac3e17ef-2c85-41c4-aded-b50b45d2cac9"
     replace_value:
       test: "$items.Lakehouse.source.$id"
       prod: "$items.Lakehouse.source.$id"
 
-  - find_value: "YOUR-DEV-SOURCE-SQLENDPOINT-GUID"
+  - find_value: "2d9f60c2-7c39-4fa8-abf7-27923b7779ff"
     replace_value:
       test: "$items.Lakehouse.source.$sqlendpointid"
       prod: "$items.Lakehouse.source.$sqlendpointid"
 
   # ── Lakehouse 2: lh_bronze ────────────────────────────────────
-  - find_value: "YOUR-DEV-BRONZE-LAKEHOUSE-GUID"
+  - find_value: "08b03a00-85b5-419d-afd9-9ac9ce036a22"
     replace_value:
       test: "$items.Lakehouse.lh_bronze.$id"
       prod: "$items.Lakehouse.lh_bronze.$id"
 
-  - find_value: "YOUR-DEV-BRONZE-SQLENDPOINT-GUID"
+  - find_value: "f7d1b4ff-fa54-4b2e-8305-cbe1655fc458"
     replace_value:
       test: "$items.Lakehouse.lh_bronze.$sqlendpointid"
       prod: "$items.Lakehouse.lh_bronze.$sqlendpointid"
 
   # ── Lakehouse 3: lh_silver ────────────────────────────────────
-  - find_value: "YOUR-DEV-SILVER-LAKEHOUSE-GUID"
+  - find_value: "17be18c5-8c61-4f30-b49e-a5dc22d20ca5"
     replace_value:
       test: "$items.Lakehouse.lh_silver.$id"
       prod: "$items.Lakehouse.lh_silver.$id"
 
-  - find_value: "YOUR-DEV-SILVER-SQLENDPOINT-GUID"
+  - find_value: "98a06445-dc4f-43b9-9c73-c1df69a381c7"
     replace_value:
       test: "$items.Lakehouse.lh_silver.$sqlendpointid"
       prod: "$items.Lakehouse.lh_silver.$sqlendpointid"
 
   # ── Lakehouse 4: lh_gold ──────────────────────────────────────
-  - find_value: "YOUR-DEV-GOLD-LAKEHOUSE-GUID"
+  - find_value: "15e072c5-8216-49e3-a4e3-d294c662e3ee"
     replace_value:
       test: "$items.Lakehouse.lh_gold.$id"
       prod: "$items.Lakehouse.lh_gold.$id"
 
-  - find_value: "YOUR-DEV-GOLD-SQLENDPOINT-GUID"
+  - find_value: "d91eaa3e-77b9-450e-a0be-21e783e82808"
     replace_value:
       test: "$items.Lakehouse.lh_gold.$sqlendpointid"
       prod: "$items.Lakehouse.lh_gold.$sqlendpointid"
