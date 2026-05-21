@@ -1,7 +1,6 @@
 import argparse, ast, os, sys, requests
 from azure.identity import ClientSecretCredential
-from fabric_cicd import FabricWorkspace, publish_all_items, 
-                        unpublish_all_orphan_items, change_log_level
+from fabric_cicd import FabricWorkspace, publish_all_items,unpublish_all_orphan_items, change_log_level
 
 def get_workspace_id(workspace_name, token_credential):
     token = token_credential.get_token("https://api.fabric.microsoft.com/.default")
