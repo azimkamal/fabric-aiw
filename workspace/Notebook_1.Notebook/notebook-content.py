@@ -25,6 +25,15 @@
 # META           "id": "ac3e17ef-2c85-41c4-aded-b50b45d2cac9"
 # META         }
 # META       ]
+# META     },
+# META     "warehouse": {
+# META       "default_warehouse": "f7d1b4ff-fa54-4b2e-8305-cbe1655fc458",
+# META       "known_warehouses": [
+# META         {
+# META           "id": "f7d1b4ff-fa54-4b2e-8305-cbe1655fc458",
+# META           "type": "Lakewarehouse"
+# META         }
+# META       ]
 # META     }
 # META   }
 # META }
