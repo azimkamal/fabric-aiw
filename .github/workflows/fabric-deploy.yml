@@ -1,1 +1,126 @@
+# .github/workflows/fabric-deploy.yml
+# Triggered on push to dev, test, or main branches.
+# Deploys Fabric items to the corresponding workspace using fabric-cicd.
 
+name: Fabric CI/CD Deploy
+
+on:
+  push:
+    branches:
+      - dev
+      - test
+      - main
+    paths:
+      - 'workspace/**'     # Only trigger when Fabric items change
+      - 'config/**'        # Or when parameters change
+      - 'deploy/**'        # Or when deploy script changes
+
+  workflow_dispatch:       # Allow manual trigger from GitHub UI
+    inputs:
+      environment:
+        description: 'Target environment to deploy'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Determine target environment from branch
+  # ─────────────────────────────────────────────
+  set-environment:
+    name: Set Target Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+    steps:
+      - name: Determine environment from branch or input
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            ENV="prod"
+          elif [ "${{ github.ref }}" == "refs/heads/test" ]; then
+            ENV="test"
+          else
+            ENV="dev"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "Deploying to: $ENV"
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Deploy Fabric items
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to ${{ needs.set-environment.outputs.environment }}
+    needs: set-environment
+    runs-on: ubuntu-latest
+
+    # Map to GitHub Environment for approval gates
+    environment: ${{ needs.set-environment.outputs.environment == 'prod' && 'production' || needs.set-environment.outputs.environment == 'test' && 'test' || 'development' }}
+
+    env:
+      AZURE_TENANT_ID:      ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID:      ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET:  ${{ secrets.AZURE_CLIENT_SECRET }}
+      DEV_WORKSPACE_NAME:   ${{ vars.DEV_WORKSPACE_NAME }}
+      TEST_WORKSPACE_NAME:  ${{ vars.TEST_WORKSPACE_NAME }}
+      PROD_WORKSPACE_NAME:  ${{ vars.PROD_WORKSPACE_NAME }}
+      TARGET_ENV:           ${{ needs.set-environment.outputs.environment }}
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Python
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Validate parameter file exists
+      - name: Validate config
+        run: |
+          echo "Checking parameter file..."
+          ls -la config/
+          python -c "import yaml; yaml.safe_load(open('config/parameter.yml'))" && echo "✅ parameter.yml is valid YAML"
+
+      # Step 5: Run fabric-cicd deployment
+      # SP credentials passed as CLI args (masked in logs via GitHub Secrets)
+      # Workspace names injected as env vars from GitHub Variables (non-sensitive)
+      - name: Deploy Fabric items to ${{ env.TARGET_ENV }}
+        run: |
+          python deploy/deploy.py \
+            --tenant-id     "$AZURE_TENANT_ID" \
+            --client-id     "$AZURE_CLIENT_ID" \
+            --client-secret "$AZURE_CLIENT_SECRET" \
+            --environment   "$TARGET_ENV" \
+            --items-in-scope '["Notebook","DataPipeline","Lakehouse","VariableLibrary","Environment"]'
+
+      # Step 6: Post deployment summary
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ env.TARGET_ENV }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
