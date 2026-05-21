@@ -1,1 +1,75 @@
+# config/parameter.yml
+# ─────────────────────────────────────────────────────────────────────────────
+# fabric-cicd parameter file — dynamic token edition
+# Aligned with Microsoft's official tutorial pattern.
+#
+# HOW IT WORKS:
+#   fabric-cicd reads item definition files from the workspace/ folder.
+#   Before pushing to the target workspace, it scans every file for
+#   "find_value" strings and replaces them with the corresponding
+#   "replace_value" for the target environment (dev / test / prod).
+#
+# DYNAMIC TOKENS (resolve automatically at deploy time):
+#   $workspace.$id                              → target workspace GUID
+#   $items.<ItemType>.<ItemName>.$id            → GUID of named item in target workspace
+#   $items.Lakehouse.<Name>.$sqlendpointid      → SQL endpoint GUID of named Lakehouse
+#
+# WHY DYNAMIC TOKENS?
+#   Instead of hardcoding TEST/PROD GUIDs here (which you'd need to update
+#   every time a workspace is recreated), dynamic tokens are resolved at
+#   runtime against the actual target workspace — zero maintenance.
+# ─────────────────────────────────────────────────────────────────────────────
 
+# config/parameter.yml
+
+find_replace:
+
+  # ── Workspace ID ──────────────────────────────────────────────
+  - find_value: "YOUR-DEV-WORKSPACE-GUID"
+    replace_value:
+      test: "$workspace.$id"
+      prod: "$workspace.$id"
+
+  # ── Lakehouse 1: source ───────────────────────────────────────
+  - find_value: "YOUR-DEV-SOURCE-LAKEHOUSE-GUID"
+    replace_value:
+      test: "$items.Lakehouse.source.$id"
+      prod: "$items.Lakehouse.source.$id"
+
+  - find_value: "YOUR-DEV-SOURCE-SQLENDPOINT-GUID"
+    replace_value:
+      test: "$items.Lakehouse.source.$sqlendpointid"
+      prod: "$items.Lakehouse.source.$sqlendpointid"
+
+  # ── Lakehouse 2: lh_bronze ────────────────────────────────────
+  - find_value: "YOUR-DEV-BRONZE-LAKEHOUSE-GUID"
+    replace_value:
+      test: "$items.Lakehouse.lh_bronze.$id"
+      prod: "$items.Lakehouse.lh_bronze.$id"
+
+  - find_value: "YOUR-DEV-BRONZE-SQLENDPOINT-GUID"
+    replace_value:
+      test: "$items.Lakehouse.lh_bronze.$sqlendpointid"
+      prod: "$items.Lakehouse.lh_bronze.$sqlendpointid"
+
+  # ── Lakehouse 3: lh_silver ────────────────────────────────────
+  - find_value: "YOUR-DEV-SILVER-LAKEHOUSE-GUID"
+    replace_value:
+      test: "$items.Lakehouse.lh_silver.$id"
+      prod: "$items.Lakehouse.lh_silver.$id"
+
+  - find_value: "YOUR-DEV-SILVER-SQLENDPOINT-GUID"
+    replace_value:
+      test: "$items.Lakehouse.lh_silver.$sqlendpointid"
+      prod: "$items.Lakehouse.lh_silver.$sqlendpointid"
+
+  # ── Lakehouse 4: lh_gold ──────────────────────────────────────
+  - find_value: "YOUR-DEV-GOLD-LAKEHOUSE-GUID"
+    replace_value:
+      test: "$items.Lakehouse.lh_gold.$id"
+      prod: "$items.Lakehouse.lh_gold.$id"
+
+  - find_value: "YOUR-DEV-GOLD-SQLENDPOINT-GUID"
+    replace_value:
+      test: "$items.Lakehouse.lh_gold.$sqlendpointid"
+      prod: "$items.Lakehouse.lh_gold.$sqlendpointid"
